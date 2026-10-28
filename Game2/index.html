@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Puffy Quest</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="shell">
+  <!-- rendered at half res, then nearest-neighbour upscaled = chunky pixel look -->
+  <canvas id="game" width="400" height="225"></canvas>
+
+  <!-- ============ HUD ============ -->
+  <div id="hud" class="hidden">
+    <div class="hud-l">
+      <div id="health"></div>
+      <div class="hud-row">
+        <span class="pico"></span><span id="lives">3</span>
+        <span id="ability" class="hidden">
+          <span id="ab-icon"></span>
+          <span id="ab-name"></span>
+        </span>
+      </div>
+    </div>
+    <div class="hud-r">
+      <div id="score">000000</div>
+      <div id="lvlabel">1-1 GREEN MEADOWS</div>
+    </div>
+  </div>
+
+  <!-- ============ BANNERS ============ -->
+  <div id="banner" class="hidden"><h2 id="banner-title"></h2><p id="banner-sub"></p></div>
+  <div id="tip" class="hidden"></div>
+
+  <!-- ============ TITLE ============ -->
+  <div id="title" class="screen">
+    <div class="logo">
+      <span class="l1">PUFFY</span>
+      <span class="l2">QUEST</span>
+    </div>
+
+    <div class="kirby">
+      <div class="k-foot lf"></div>
+      <div class="k-foot rf"></div>
+      <div class="k-arm lf"></div>
+      <div class="k-arm rf"></div>
+      <div class="k-body">
+        <div class="k-eye lf"><i></i></div>
+        <div class="k-eye rf"><i></i></div>
+        <div class="k-blush lf"></div>
+        <div class="k-blush rf"></div>
+        <div class="k-mouth"></div>
+      </div>
+    </div>
+
+    <p class="press">PRESS <b>ENTER</b> TO START</p>
+    <p class="controls">
+      <span>&larr;&rarr; MOVE</span><span>Z / SPACE JUMP &amp; FLOAT</span>
+      <span>X INHALE &amp; SPIT</span><span>&darr; SWALLOW / CROUCH</span>
+    </p>
+  </div>
+
+  <!-- ============ TUTORIAL / HOW TO PLAY ============ -->
+  <div id="tutorial" class="screen hidden">
+    <div class="tpanel">
+      <div class="t-top">
+        <h1>HOW TO PLAY</h1>
+        <div class="t-dots"><i></i><i></i><i></i></div>
+      </div>
+
+      <!-- ---------- page 1 : directions ---------- -->
+      <section class="tpage" data-p="0">
+        <div class="t-cols">
+          <div class="t-box">
+            <h2>DIRECTIONS</h2>
+            <ul class="keys">
+              <li><span class="kb"><b>&larr;</b><b>&rarr;</b></span><span class="or">or</span><span class="kb"><b>A</b><b>D</b></span><i>MOVE</i></li>
+              <li><span class="kb wide"><b>Z</b><b>SPACE</b></span><i>JUMP &middot; HOLD TO FLOAT</i></li>
+              <li><span class="kb"><b>X</b></span><i>INHALE &middot; SPIT &middot; USE POWER</i></li>
+              <li><span class="kb"><b>&darr;</b></span><i>SWALLOW &middot; CROUCH &middot; SLIDE</i></li>
+              <li><span class="kb"><b>&darr;</b></span><span class="or">+</span><span class="kb"><b>Z</b></span><i>THROW YOUR POWER AWAY</i></li>
+              <li><span class="kb"><b>ESC</b></span><i>PAUSE THE GAME</i></li>
+            </ul>
+          </div>
+          <div class="t-box">
+            <h2>THE PUFFY LOOP</h2>
+            <ol class="steps">
+              <li><b>1</b> Hold <u>X</u> to <strong>SUCK</strong> an enemy into your mouth</li>
+              <li><b>2</b> Tap <u>X</u> to <strong>SPIT</strong> it out &mdash; it flies and hurts</li>
+              <li><b>3</b> Press <u>&darr;</u> to <strong>SWALLOW</strong> it and copy its power</li>
+              <li><b>4</b> Tap <u>X</u> to fire the power &mdash; it never runs out</li>
+              <li><b>5</b> Hold <u>&darr;</u> and tap <u>Z</u> to throw the power away</li>
+              <li><b>6</b> Reach the glowing <strong>CAPSULE</strong> to clear the stage</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- page 2 : enemies ---------- -->
+      <section class="tpage hidden" data-p="1">
+        <div class="t-cards">
+          <div class="card">
+            <div class="sp sp-dee"><i class="b"></i><i class="e l"></i><i class="e r"></i><i class="ft l"></i><i class="ft r"></i></div>
+            <h3>WADDLE DEE</h3>
+            <p>A friendly walker that paces back and forth. Squishy, harmless, great practice.</p>
+            <span class="drop none">NO COPY POWER</span>
+          </div>
+          <div class="card">
+            <div class="sp sp-doo"><i class="ant"></i><i class="ball"></i><i class="b"></i><i class="eye"></i><i class="ft l"></i><i class="ft r"></i></div>
+            <h3>WADDLE DOO</h3>
+            <p>Stops and fires a spark down its lane. Keep your distance before sucking it up.</p>
+            <span class="drop beam">DROP: BEAM</span>
+          </div>
+          <div class="card">
+            <div class="sp sp-bronto"><i class="wing"></i><i class="b"></i><i class="belly"></i><i class="beak"></i><i class="e"></i></div>
+            <h3>BRONTO BIRD</h3>
+            <p>Glides over the pits on beating wings. It guards its patch of sky &mdash; no swooping!</p>
+            <span class="drop fire">DROP: FIRE</span>
+          </div>
+          <div class="card">
+            <div class="sp sp-kib"><i class="b"></i><i class="helm"></i><i class="band"></i><i class="eye"></i><i class="ft l"></i><i class="ft r"></i></div>
+            <h3>KIBBLE KNIGHT</h3>
+            <p>Hops and throws its cutter blade. Hefty helmet, soft middle.</p>
+            <span class="drop sword">DROP: SWORD</span>
+          </div>
+        </div>
+        <p class="t-note">INHALE IT &rarr; PRESS &darr; TO COPY ITS POWER &middot; TAKING A HIT DROPS THE POWER</p>
+      </section>
+
+      <!-- ---------- page 3 : powers & items ---------- -->
+      <section class="tpage hidden" data-p="2">
+        <div class="t-cols">
+          <div class="t-box">
+            <h2>COPY POWERS</h2>
+            <ul class="powers">
+              <li><span class="ic f">&#128293;</span><b>FIRE</b><i>Spits a rolling fireball at enemies.</i></li>
+              <li><span class="ic b">&#9889;</span><b>BEAM</b><i>Fires a fast laser bolt that pierces everything.</i></li>
+              <li><span class="ic s">&#9876;</span><b>SWORD</b><i>Swings a real blade &mdash; and throws a crescent wave.</i></li>
+            </ul>
+            <p class="fine">POWERS ARE UNLIMITED &mdash; HOLD &darr; AND TAP Z TO THROW ONE AWAY.</p>
+          </div>
+          <div class="t-box">
+            <h2>ITEMS &amp; DANGERS</h2>
+            <ul class="items">
+              <li><span class="it apple"></span><b>APPLE</b><i>+1 HEART</i></li>
+              <li><span class="it cake"></span><b>CAKE</b><i>+3 HEARTS</i></li>
+              <li><span class="it oneup"></span><b>1-UP</b><i>EXTRA LIFE</i></li>
+              <li><span class="it spike"></span><b>SPIKES / PITS</b><i>3 HEARTS OR A FALL</i></li>
+            </ul>
+            <p class="fine">3 LIVES &middot; 6 HEARTS &middot; THE KING GRUMBLE WAITS AT THE PEAK.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="t-foot">
+        <span class="grp"><span class="k">&#9664; &#9654;</span> SWITCH PAGE</span>
+        <span class="press">PRESS <b>ENTER</b> TO START</span>
+        <span class="grp"><span class="k">ESC</span> BACK</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PAUSE ============ -->
+  <div id="pause" class="screen hidden">
+    <div class="panel">
+      <h1>PAUSED</h1>
+      <p class="press">PRESS <b>ESC</b> TO RESUME</p>
+      <button data-act="resume">RESUME</button>
+      <button data-act="quit">QUIT TO TITLE</button>
+    </div>
+  </div>
+
+  <!-- ============ LEVEL CLEAR ============ -->
+  <div id="clear" class="screen hidden">
+    <div class="panel gold">
+      <h1>LEVEL CLEAR!</h1>
+      <p id="clear-score">SCORE 000000</p>
+      <p class="press">PRESS <b>ENTER</b></p>
+    </div>
+  </div>
+
+  <!-- ============ GAME OVER ============ -->
+  <div id="gameover" class="screen hidden">
+    <div class="panel red">
+      <h1>GAME OVER</h1>
+      <p>PUFFY NEVER GIVES UP!</p>
+      <p class="press">PRESS <b>ENTER</b> TO CONTINUE</p>
+    </div>
+  </div>
+
+  <!-- ============ VICTORY ============ -->
+  <div id="victory" class="screen hidden">
+    <div class="panel gold">
+      <h1>YOU WIN!</h1>
+      <p>THE PUFFY KINGDOM IS SAFE AGAIN</p>
+      <p id="victory-score">SCORE 000000</p>
+      <p class="press">PRESS <b>ENTER</b> TO PLAY AGAIN</p>
+    </div>
+  </div>
+</div>
+
+<script src="js/input.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/camera.js"></script>
+<script src="js/physics.js"></script>
+<script src="js/abilities.js"></script>
+<script src="js/entities.js"></script>
+<script src="js/enemies.js"></script>
+<script src="js/boss.js"></script>
+<script src="js/level.js"></script>
+<script src="js/levels.js"></script>
+<script src="js/player.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
